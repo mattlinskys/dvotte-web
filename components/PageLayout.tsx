@@ -3,6 +3,7 @@ import Header from "components/Header";
 import Footer from "components/Footer";
 import Head from "next/head";
 import { useTranslation } from "next-i18next";
+import { Box } from "@chakra-ui/react";
 
 interface PageLayoutProps {
   title?: string;
@@ -26,9 +27,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         </title>
       </Head>
 
-      <Header />
-      <div style={{ margin: "1rem" }}>{children}</div>
-      <Footer />
+      <Box
+        h="full"
+        display="flex"
+        flexDirection="column"
+        justifyContent="stretch"
+      >
+        <Header />
+        <Box>{children}</Box>
+        <Footer />
+      </Box>
     </>
   );
 };
