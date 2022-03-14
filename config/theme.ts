@@ -18,6 +18,9 @@ export const theme = extendTheme(
         body: {
           overflowX: "hidden",
         },
+        "a:hover": {
+          textDecoration: "underline",
+        },
       },
     },
     components: {
@@ -37,6 +40,15 @@ export const theme = extendTheme(
           borderTopStyle: "solid",
           borderTopColor: colorMode === "dark" ? "gray.600" : "gray.300",
           bg: colorMode === "dark" ? "gray.700" : "white",
+        }),
+      },
+      Panel: {
+        baseStyle: ({ colorMode }) => ({
+          p: "4",
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: colorMode === "dark" ? "gray.600" : "gray.300",
+          rounded: "md",
         }),
       },
     } as Record<string, ComponentSingleStyleConfig>,

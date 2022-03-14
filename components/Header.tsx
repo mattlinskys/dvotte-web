@@ -14,9 +14,10 @@ const Header: React.FC = () => {
         <HStack>
           <SelectChainMenu defaultLabel={t("select-chain")} />
         </HStack>
-        <Box as="nav">
+        <HStack as="nav" spacing="4">
           <Link href="/contracts/new">Deploy new contract</Link>
-        </Box>
+          <Link href="/projects/new">Create project</Link>
+        </HStack>
       </HStack>
     </Box>
   );

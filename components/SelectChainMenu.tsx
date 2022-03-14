@@ -11,6 +11,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  useToast,
 } from "@chakra-ui/react";
 
 interface SelectChainMenuProps {
@@ -22,6 +23,7 @@ const SelectChainMenu: React.FC<SelectChainMenuProps> = ({ defaultLabel }) => {
   const library = useLibrary();
   const chains = useChains();
   const chain = useActiveChain();
+  const toast = useToast();
 
   const handleChainChange = useCallback(
     async (selectedChainId: number) => {
@@ -55,9 +57,21 @@ const SelectChainMenu: React.FC<SelectChainMenuProps> = ({ defaultLabel }) => {
               });
             } catch (err: any) {
               console.error(err);
+              toast({
+                title: err.message,
+                status: "error",
+                isClosable: true,
+                duration: 10_000,
+              });
             }
           } else {
             console.error(err);
+            toast({
+              title: err.message,
+              status: "error",
+              isClosable: true,
+              duration: 10_000,
+            });
           }
         }
       }
