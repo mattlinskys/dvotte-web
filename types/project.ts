@@ -4,5 +4,15 @@ export interface IProject {
   title: string;
   description?: string;
   content?: string;
+  color: string;
   ownerAddress: string;
+}
+
+export interface ICreateProjectDto {
+  slug: string;
+  title: string;
+  description?: string;
+  content?: string;
+  color: string;
+  contractIds: string[];
 }

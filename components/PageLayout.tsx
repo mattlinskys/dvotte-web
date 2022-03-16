@@ -34,7 +34,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         justifyContent="stretch"
       >
         <Header />
-        <Box>{children}</Box>
+        {children}
         <Footer />
       </Box>
     </>

@@ -18,6 +18,7 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/*.code-search": true,
-    "**/build": true
+    "**/build": true,
+    "**/.next"
   }
 }

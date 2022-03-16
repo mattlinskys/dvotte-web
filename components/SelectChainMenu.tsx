@@ -90,9 +90,10 @@ const SelectChainMenu: React.FC<SelectChainMenuProps> = ({ defaultLabel }) => {
             handleChainChange(parseInt(chainId as string));
           }}
         >
-          {chains.map(({ id, name }) => (
+          {chains.map(({ id, name, nativeCurrency }) => (
             <MenuItemOption key={id} value={id.toString()}>
               {name}
+              {nativeCurrency && ` (${nativeCurrency.symbol})`}
             </MenuItemOption>
           ))}
         </MenuOptionGroup>

@@ -1,7 +1,12 @@
 import axios, { AxiosRequestConfig } from "axios";
-import type { IProject } from "types/project";
+import type { ICreateProjectDto, IProject } from "types/project";
+
+export const createProject = (
+  data: ICreateProjectDto,
+  config?: AxiosRequestConfig<any>
+) => axios.post<IProject>("/projects", data, config);
 
 export const getProjectBySlug = (
   slug: string,
   config?: AxiosRequestConfig<any>
-) => axios.get<IProject>(`/projects/${slug}/slog`, config);
+) => axios.get<IProject>(`/projects/${slug}/slug`, config);

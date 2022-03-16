@@ -84,7 +84,7 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
     getValues,
   } = useForm<FormValues>({
     defaultValues: {
-      addresses: [{ value: accountAddress! }],
+      addresses: accountAddress ? [{ value: accountAddress }] : [],
       releaseThreshold: "0.05",
       deployOffline: false,
     },
