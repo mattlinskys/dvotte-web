@@ -8,9 +8,9 @@ import AutoConnect from "components/AutoConnect";
 import { appWithTranslation } from "next-i18next";
 import { theme } from "config/theme";
 
-import { presetAxios } from "api/preset";
+import { presetApi } from "api/preset";
 
-presetAxios();
+presetApi();
 
 const App: React.FC<AppProps> = ({ Component, pageProps }) => (
   <ChakraProvider theme={theme}>

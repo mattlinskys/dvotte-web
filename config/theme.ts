@@ -6,6 +6,9 @@ import {
 
 export const theme = extendTheme(
   {
+    config: {
+      initialColorMode: "dark",
+    },
     fonts: {
       heading: "Lato",
       body: "Lato",
@@ -20,6 +23,15 @@ export const theme = extendTheme(
         },
         "a:hover": {
           textDecoration: "underline",
+        },
+        "input::-webkit-color-swatch": {
+          border: "blue",
+        },
+        "input::-webkit-color-swatch-wrapper, input[type=color]": {
+          padding: "0",
+        },
+        "input[type=color]": {
+          overflow: "hidden",
         },
       },
     },
@@ -40,14 +52,16 @@ export const theme = extendTheme(
     components: {
       Header: {
         baseStyle: ({ colorMode }) => ({
+          flexShrink: "0",
           height: "60px",
           px: "4",
           boxShadow: "md",
-          bg: colorMode === "dark" ? "gray.800" : "white",
+          bg: colorMode === "dark" ? "gray.700" : "white",
         }),
       },
       Footer: {
         baseStyle: ({ colorMode }) => ({
+          flexShrink: "0",
           mt: "auto",
           p: "4",
           borderTopWidth: "1px",
@@ -65,7 +79,22 @@ export const theme = extendTheme(
           rounded: "md",
         }),
       },
+      Input: {
+        sizes: {
+          md: {
+            field: {
+              borderRadius: "full",
+            },
+            addon: {
+              borderRadius: "full",
+            },
+          },
+        },
+      },
       Button: {
+        baseStyle: {
+          borderRadius: "full",
+        },
         defaultProps: {
           colorScheme: "brand",
         },
