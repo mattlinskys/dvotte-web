@@ -1,4 +1,5 @@
-import type { GetServerSideProps, NextPage } from "next";
+import type { NextPage } from "next";
+import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 import { useRouter } from "next/router";
 import useChains from "hooks/useChains";
@@ -6,7 +7,6 @@ import { utils } from "ethers";
 import { useCallback, useMemo } from "react";
 import useActiveChain from "hooks/useActiveChain";
 import { Button, Tag, Text, VStack } from "@chakra-ui/react";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Dialog from "components/Dialog";
 import ConnectWalletDialog from "components/ConnectWalletDialog";
 import useConnected from "hooks/useConnected";
@@ -87,10 +87,6 @@ const ContractPage: NextPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale!, ["common", "meta"])),
-  },
-});
+export const getStaticProps = makeGetServerSideTranslationsProps("contracts");
 
 export default ContractPage;

@@ -33,6 +33,11 @@ export const theme = extendTheme(
         "input[type=color]": {
           overflow: "hidden",
         },
+        ".quill": {
+          height: "full",
+          display: "flex",
+          flexDirection: "column",
+        },
       },
     },
     colors: {
@@ -80,6 +85,18 @@ export const theme = extendTheme(
         }),
       },
       Input: {
+        sizes: {
+          md: {
+            field: {
+              borderRadius: "full",
+            },
+            addon: {
+              borderRadius: "full",
+            },
+          },
+        },
+      },
+      Select: {
         sizes: {
           md: {
             field: {

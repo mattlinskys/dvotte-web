@@ -1,13 +1,16 @@
-import type { GetStaticProps, NextPage } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import type { NextPage } from "next";
+import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 import DeployContractForm from "components/DeployContractForm";
 import Panel from "components/Panel";
 import { Heading } from "@chakra-ui/react";
 import useConnected from "hooks/useConnected";
 import ConnectWalletDialog from "components/ConnectWalletDialog";
+import { AutoConnectContext } from "contexts/AutoConnectContext";
+import { useContext } from "react";
 
 const NewContractPage: NextPage = () => {
+  const { isAutoConnecting } = useContext(AutoConnectContext);
   const isConnected = useConnected();
 
   return (
@@ -21,15 +24,13 @@ const NewContractPage: NextPage = () => {
         </Panel>
       </PageLayout>
 
-      <ConnectWalletDialog isOpen={!isConnected} />
+      <ConnectWalletDialog
+        isOpen={isAutoConnecting === false && !isConnected}
+      />
     </>
   );
 };
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale!, ["meta", "common", "contracts"])),
-  },
-});
+export const getStaticProps = makeGetServerSideTranslationsProps("contracts");
 
 export default NewContractPage;

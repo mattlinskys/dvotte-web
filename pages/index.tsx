@@ -1,13 +1,9 @@
-import type { GetStaticProps, NextPage } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import type { NextPage } from "next";
+import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 
 const HomePage: NextPage = () => <PageLayout>Home page</PageLayout>;
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale!, ["common", "meta"])),
-  },
-});
+export const getStaticProps = makeGetServerSideTranslationsProps();
 
 export default HomePage;

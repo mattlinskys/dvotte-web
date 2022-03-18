@@ -1,18 +1,17 @@
 export interface IProject {
   id: string;
-  slug: string;
   title: string;
+  slug: string;
+  bannerUrl: string;
   description?: string;
   content?: string;
   color: string;
+  contracts: { address: string; chainId: number }[];
   ownerAddress: string;
 }
 
-export interface ICreateProjectDto {
-  slug: string;
-  title: string;
-  description?: string;
-  content?: string;
-  color: string;
-  contractIds: string[];
-}
+export interface ICreateProjectDto
+  extends Pick<
+    IProject,
+    "title" | "slug" | "description" | "content" | "color" | "contracts"
+  > {}
