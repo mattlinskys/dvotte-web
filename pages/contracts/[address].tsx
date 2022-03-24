@@ -3,13 +3,15 @@ import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 import { useRouter } from "next/router";
 import useChains from "hooks/useChains";
-import { utils } from "ethers";
-import { useCallback, useMemo } from "react";
+import { providers, utils } from "ethers";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 import useActiveChain from "hooks/useActiveChain";
 import { Button, Tag, Text, VStack } from "@chakra-ui/react";
 import Dialog from "components/Dialog";
 import ConnectWalletDialog from "components/ConnectWalletDialog";
-import useConnected from "hooks/useConnected";
+import useWalletConnected from "hooks/useWalletConnected";
+import ErrorLayout from "components/ErrorLayout";
+import { RecentlyViewiedContractsContext } from "contexts/RecentlyViewiedContractsContext";
 
 const ContractPage: NextPage = () => {
   const { query, replace } = useRouter();
@@ -22,7 +24,10 @@ const ContractPage: NextPage = () => {
     [chains, query.chainId]
   );
   const activeChain = useActiveChain();
-  const isConnected = useConnected();
+  const isConnected = useWalletConnected();
+  const { contracts, addContract } = useContext(
+    RecentlyViewiedContractsContext
+  );
 
   const handleSelectChain = useCallback(
     (chainId: number) => {
@@ -31,11 +36,35 @@ const ContractPage: NextPage = () => {
     [query, replace]
   );
 
+  useEffect(() => {
+    if (!address || !chain) {
+      return;
+    }
+
+    const [rpc] = chain.rpcUrls;
+    const provider = new providers.JsonRpcProvider(
+      rpc.replace("${INFURA_API_KEY}", process.env.NEXT_PUBLIC_INFURA_API_KEY)
+    );
+    provider
+      .getBlockNumber()
+      .then((block) => {
+        console.log("Got Block", block);
+      })
+      .catch(console.log);
+  }, [address, chain]);
+
+  useEffect(() => {
+    if (address && chain && contracts) {
+      addContract({ address, chainId: chain.id });
+    }
+  }, [address, chain, !!contracts]);
+
+  // TODO: Handle invalid address
   // TODO: Switch chain handler
 
-  return (
+  return address ? (
     <>
-      <PageLayout>
+      <PageLayout title={address}>
         <p>
           Contract {address} {chain?.id}
         </p>
@@ -48,7 +77,8 @@ const ContractPage: NextPage = () => {
         title="Wrong chain"
       >
         <Text textAlign="center">
-          Change chain to <Tag>{chain?.name}</Tag> in order to use this contract
+          Change chain to <Tag>{chain?.name}</Tag> in order to preview this
+          contract
         </Text>
         <Button onClick={() => {}} isFullWidth mt="4">
           Switch chain
@@ -73,6 +103,7 @@ const ContractPage: NextPage = () => {
             <Button
               key={id}
               onClick={() => handleSelectChain(id)}
+              variant="outline"
               flexShrink="0"
             >
               {name}
@@ -84,9 +115,12 @@ const ContractPage: NextPage = () => {
 
       <ConnectWalletDialog isOpen={!isConnected} />
     </>
+  ) : (
+    <ErrorLayout message="Invalid address" />
   );
 };
 
-export const getStaticProps = makeGetServerSideTranslationsProps("contracts");
+export const getServerSideProps =
+  makeGetServerSideTranslationsProps("contracts");
 
 export default ContractPage;

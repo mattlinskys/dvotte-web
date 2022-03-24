@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import useAccountAddress from "hooks/useAccountAddress";
 import useSigner from "hooks/useSigner";
-import { Contract, ContractFactory, errors, utils } from "ethers";
+import { Contract, ContractFactory, utils } from "ethers";
 import dvotteContract from "contracts/DVotte.json";
-import type { TransactionReceipt } from "@ethersproject/abstract-provider";
 import {
   Button,
-  Checkbox,
   CloseButton,
   FormControl,
   FormErrorMessage,
@@ -19,16 +17,16 @@ import {
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-// import { compareAddresses } from "utils/addressUtils";
+import { isAddressZero } from "utils/addressUtils";
+import SelectChainButton from "components/SelectChainButton";
 
 export interface DeployContractFormProps {
-  onDeployed: (contract: Contract, receipt: TransactionReceipt) => void;
+  onDeployed: (contract: Contract) => void;
 }
 
 interface FormValues {
   addresses: { value: string }[];
   releaseThreshold: string;
-  deployOffline: boolean;
 }
 
 // TODO: Translations
@@ -48,30 +46,30 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
               yup.object().shape({
                 value: yup
                   .string()
-                  .required("Required")
-                  .test("isAddress", "Not a address", (value) =>
-                    utils.isAddress(value!)
+                  .required()
+                  .test(
+                    "isAddress",
+                    (value) => utils.isAddress(value!) && !isAddressZero(value!)
                   ),
               })
-              // TODO:
-              // .test(
-              //   "unique",
-              //   "Address must be unique",
-              //   (address, { parent: addresses, path }) => {
-              //     const [, index] = path.match(/\[(\d+)\]$/)!;
-              //     return (
-              //       parseInt(index) <=
-              //       (addresses as FormValues["addresses"]).findIndex(
-              //         ({ value }) =>
-              //           compareAddresses(address.value!, value)
-              //       )
-              //     );
-              //   }
-              // )
             )
-            .min(1),
+            .required()
+            .min(1)
+            .test(
+              "unique",
+              (addresses) =>
+                [
+                  ...new Set(
+                    addresses!.map((address) =>
+                      utils.isAddress(address.value!)
+                        ? utils.getAddress(address.value!)
+                        : address.value
+                    )
+                  ),
+                ].length === addresses!.length
+            ),
           // TODO:
-          releaseThreshold: yup.string().required("Required"),
+          releaseThreshold: yup.string().required(),
         })
         .required(),
     []
@@ -80,13 +78,12 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
     getValues,
   } = useForm<FormValues>({
     defaultValues: {
       addresses: accountAddress ? [{ value: accountAddress }] : [],
       releaseThreshold: "0.05",
-      deployOffline: false,
     },
     resolver: yupResolver(schema),
     mode: "onBlur",
@@ -110,25 +107,36 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
   }, [accountAddress]);
 
   const onSubmit = useCallback<SubmitHandler<FormValues>>(
-    async ({ addresses, releaseThreshold, deployOffline }) => {
-      const factory = new ContractFactory(
-        dvotteContract.abi,
-        dvotteContract.bytecode,
-        signer!
-      );
-      const contract = await factory.deploy(
-        utils.parseEther(releaseThreshold),
-        addresses.map(({ value }) => value)
-      );
-      const receipt = await contract.deployTransaction.wait();
-      onDeployed(contract, receipt);
+    async ({ addresses, releaseThreshold }) => {
+      try {
+        const factory = new ContractFactory(
+          dvotteContract.abi,
+          dvotteContract.bytecode,
+          signer!
+        );
+
+        const contract = await factory.deploy(
+          utils.parseEther(releaseThreshold),
+          addresses.map(({ value }) => value)
+        );
+        await contract.deployTransaction.wait();
+
+        onDeployed(contract);
+      } catch (err) {
+        // TODO:
+      }
     },
     [signer, onDeployed]
   );
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <VStack align="stretch" spacing="4">
+      <VStack align="stretch" spacing="3">
+        <FormControl>
+          <FormLabel>Network</FormLabel>
+          <SelectChainButton />
+        </FormControl>
+
         <FormControl>
           <FormLabel>Members</FormLabel>
           <VStack as="ul" align="stretch" spacing="2">
@@ -184,15 +192,9 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
             </FormHelperText>
           )}
         </FormControl>
-
-        <FormControl>
-          <Checkbox {...register("deployOffline")}>
-            Deploy contract offline
-          </Checkbox>
-        </FormControl>
       </VStack>
 
-      <Button type="submit" mt="6" isFullWidth>
+      <Button type="submit" mt="4" isFullWidth isLoading={isSubmitting}>
         Deploy
       </Button>
     </form>

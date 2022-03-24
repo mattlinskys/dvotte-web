@@ -1,22 +1,36 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import type { NextPage } from "next";
 import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 import Panel from "components/Panel";
-import { Heading } from "@chakra-ui/react";
+import { Heading, useToast } from "@chakra-ui/react";
 import CreateProjectForm from "components/CreateProjectForm";
 import { useTranslation } from "next-i18next";
-import { AuthContext } from "contexts/AuthContext";
-import useConnected from "hooks/useConnected";
-import ConnectWalletDialog from "components/ConnectWalletDialog";
-import AuthenticateDialog from "components/AuthenticateDialog";
-import { AutoConnectContext } from "contexts/AutoConnectContext";
+import ConnectWalletDialogProvider from "providers/ConnectWalletDialogProvider";
+import AuthenticateDialogProvider from "providers/AuthenticateDialogProvider";
+import { useRouter } from "next/router";
+import { IProject } from "types/project";
 
 const NewProjectPage: NextPage = () => {
   const { t } = useTranslation();
-  const isConnected = useConnected();
-  const { isAutoConnecting } = useContext(AutoConnectContext);
-  const { isInitializing, isAuthenticated } = useContext(AuthContext);
+  const { push } = useRouter();
+  const toast = useToast();
+
+  const handleSaved = useCallback(
+    (project: IProject) => {
+      toast({
+        title: "Created successfully!",
+        status: "success",
+        isClosable: true,
+        duration: 7_000,
+      });
+      push({
+        pathname: "/projects/[slug]",
+        query: { slug: project.slug },
+      });
+    },
+    [toast, push]
+  );
 
   return (
     <>
@@ -25,16 +39,12 @@ const NewProjectPage: NextPage = () => {
           <Heading size="md" mb="4">
             {t("projects:new-project")}
           </Heading>
-          <CreateProjectForm />
+          <CreateProjectForm onSaved={handleSaved} />
         </Panel>
       </PageLayout>
 
-      <ConnectWalletDialog
-        isOpen={isAutoConnecting === false && !isConnected}
-      />
-      <AuthenticateDialog
-        isOpen={isConnected && !isInitializing && !isAuthenticated}
-      />
+      <ConnectWalletDialogProvider />
+      <AuthenticateDialogProvider />
     </>
   );
 };

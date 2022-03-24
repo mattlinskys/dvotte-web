@@ -7,7 +7,7 @@ import { Box, extendTheme, ThemeProvider } from "@chakra-ui/react";
 import { theme } from "config/theme";
 import { useMemo } from "react";
 import { PROJECT_WRAPPER_ID } from "constants/dom";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 
 interface ProjectPageProps {
   project: IProject;

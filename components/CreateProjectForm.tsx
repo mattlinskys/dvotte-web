@@ -21,6 +21,7 @@ import {
   InputLeftAddon,
   Select,
   Textarea,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { AttachmentIcon, EditIcon } from "@chakra-ui/icons";
@@ -30,11 +31,20 @@ import * as yup from "yup";
 import slugify from "slugify";
 import FileInput from "components/FileInput";
 import useChains from "hooks/useChains";
-import type { IProject } from "types/project";
+import type { IProject, SocialType } from "types/project";
 import dynamic from "next/dynamic";
+import { AuthContext } from "contexts/AuthContext";
+import { utils } from "ethers";
+import { isAddressZero } from "utils/addressUtils";
 
 import "react-quill/dist/quill.snow.css";
-import { AuthContext } from "contexts/AuthContext";
+import { IContract } from "types/contract";
+import {
+  createProject,
+  updateProject,
+  uploadProjectBanner,
+} from "api/projectsApi";
+import { AxiosError } from "axios";
 
 const ContentEditorModal = dynamic(
   () => import("components/ContentEditorModal"),
@@ -45,6 +55,7 @@ const ContentEditorModal = dynamic(
 
 interface CreateProjectFormProps {
   project?: IProject;
+  onSaved: (project: IProject) => void;
 }
 
 interface FormValues {
@@ -54,11 +65,17 @@ interface FormValues {
   bannerFile?: File;
   content: string;
   color: string;
-  contracts: { address: string; chainId: number }[];
+  contracts: IContract[];
+  socials: { type: SocialType; url: string }[];
 }
 
 // TODO: Translations
-const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ project }) => {
+// TODO: Use error.content.type from schema (do not inject messages)
+const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
+  project,
+  onSaved,
+}) => {
+  const toast = useToast();
   const signer = useSigner();
   const { isAuthenticated } = useContext(AuthContext);
   const chains = useChains();
@@ -70,21 +87,52 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ project }) => {
           title: yup.string().required(),
           slug: yup
             .string()
-            .matches(/^[a-z](-?[a-z])*$/i)
+            .matches(/^\w(-?\w)*$/i)
             .required(),
           description: yup.string().required(),
           content: yup.string().required(),
           color: yup.string().required(),
+          contracts: yup
+            .array()
+            .of(
+              yup.object().shape({
+                address: yup
+                  .string()
+                  .required()
+                  .test(
+                    "isAddress",
+                    (value) => utils.isAddress(value!) && !isAddressZero(value!)
+                  ),
+                chainId: yup
+                  .number()
+                  .required()
+                  .integer()
+                  .positive()
+                  .oneOf(chains.map((chain) => chain.id)),
+              })
+            )
+            .test("uniqueChains", (contracts) => {
+              const validContracts = contracts!.filter(
+                ({ chainId }) => !Number.isNaN(chainId)
+              );
+              return (
+                [...new Set(validContracts!.map(({ chainId }) => chainId))]
+                  .length === validContracts?.length
+              );
+            })
+            .required()
+            .min(1),
         })
         .required(),
-    []
+    [chains]
   );
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
+    setError,
     getFieldState,
     watch,
   } = useForm<FormValues>({
@@ -94,7 +142,8 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ project }) => {
       description: project?.description ?? "",
       content: project?.content ?? "",
       color: project?.color ?? "#3182ce",
-      contracts: project?.contracts ?? [],
+      contracts: project?.contracts ?? [{ address: "" }],
+      socials: [],
     },
     resolver: yupResolver(schema),
     mode: "onBlur",
@@ -129,14 +178,41 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ project }) => {
     return unsubscribe;
   }, [watch, getFieldState, setValue]);
 
-  const onSubmit = useCallback<SubmitHandler<FormValues>>(async () => {}, [
-    signer,
-  ]);
+  const onSubmit = useCallback<SubmitHandler<FormValues>>(
+    async ({ bannerFile, ...values }) => {
+      try {
+        let { data: savedProject } = project
+          ? await updateProject(project.id, values)
+          : await createProject(values);
+
+        if (bannerFile) {
+          const formData = new FormData();
+          formData.append("banner", bannerFile);
+          savedProject = (await uploadProjectBanner(savedProject.id, formData))
+            .data;
+        }
+
+        onSaved(savedProject);
+      } catch (err: any) {
+        if ((err as AxiosError).response?.status === 409) {
+          setError("slug", { type: "taken" }, { shouldFocus: true });
+        } else {
+          toast({
+            title: err.message,
+            status: "error",
+            isClosable: true,
+            duration: 10_000,
+          });
+        }
+      }
+    },
+    [project?.id, toast, onSaved]
+  );
 
   return (
     <>
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
-        <VStack align="stretch" spacing="4">
+        <VStack align="stretch" spacing="3">
           <FormControl>
             <FormLabel htmlFor="title">Title</FormLabel>
             <Input id="title" {...register("title")} />
@@ -267,7 +343,13 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ project }) => {
           </FormControl>
         </VStack>
 
-        <Button type="submit" isDisabled={!isAuthenticated} mt="6" isFullWidth>
+        <Button
+          type="submit"
+          isDisabled={!isAuthenticated}
+          isLoading={isSubmitting}
+          mt="4"
+          isFullWidth
+        >
           Create
         </Button>
       </form>

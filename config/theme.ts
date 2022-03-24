@@ -20,9 +20,7 @@ export const theme = extendTheme(
         },
         body: {
           overflowX: "hidden",
-        },
-        "a:hover": {
-          textDecoration: "underline",
+          tabSize: 4,
         },
         "input::-webkit-color-swatch": {
           border: "blue",
@@ -37,6 +35,24 @@ export const theme = extendTheme(
           height: "full",
           display: "flex",
           flexDirection: "column",
+        },
+        ".ql-container": {
+          fontFamily: "Lato",
+          fontSize: "inherit",
+        },
+        ".ql-editor": {
+          lineHeight: "inherit",
+          padding: "4",
+          tabSize: "inherit",
+        },
+        ".ql-toolbar.ql-snow, .ql-container.ql-snow": {
+          borderColor: "gray.300",
+        },
+        ".ql-toolbar.ql-snow": {
+          borderTopRadius: "md",
+        },
+        ".ql-container.ql-snow": {
+          borderBottomRadius: "md",
         },
       },
     },
@@ -114,6 +130,15 @@ export const theme = extendTheme(
         },
         defaultProps: {
           colorScheme: "brand",
+        },
+      },
+      Modal: {
+        sizes: {
+          full: {
+            dialog: {
+              margin: "4",
+            },
+          },
         },
       },
     } as Record<string, ComponentSingleStyleConfig>,

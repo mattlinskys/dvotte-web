@@ -2,7 +2,7 @@ import type { IChain } from "types/chain";
 
 export const defaultSupportedChains: IChain[] = [
   {
-    id: 31_337,
+    id: 31337,
     name: "Hardhat",
     rpcUrls: ["http://127.0.0.1:8545"],
   },
@@ -10,11 +10,23 @@ export const defaultSupportedChains: IChain[] = [
     id: 1,
     name: "Mainnet",
     nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-    rpcUrls: ["https://mainnet.infura.io/v3"],
+    rpcUrls: ["https://mainnet.infura.io/v3/${INFURA_API_KEY}"],
     blockExplorers: [
       {
         name: "Etherscan",
         url: "https://etherscan.io",
+      },
+    ],
+  },
+  {
+    id: 4,
+    name: "Rinkeby",
+    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+    rpcUrls: ["https://rinkeby.infura.io/v3/${INFURA_API_KEY}"],
+    blockExplorers: [
+      {
+        name: "Etherscan rinkeby",
+        url: "https://rinkeby.etherscan.io",
       },
     ],
   },
@@ -38,7 +50,7 @@ export const defaultSupportedChains: IChain[] = [
     ],
   },
   {
-    id: 43_114,
+    id: 43114,
     name: "Avalanche Mainnet",
     nativeCurrency: {
       name: "Avalanche",
@@ -49,7 +61,7 @@ export const defaultSupportedChains: IChain[] = [
     blockExplorers: [{ name: "SnowTrace", url: "https://snowtrace.io" }],
   },
   {
-    id: 42_161,
+    id: 42161,
     name: "Arbitrum One",
     nativeCurrency: { name: "Ether", symbol: "AETH", decimals: 18 },
     rpcUrls: ["https://arb1.arbitrum.io/rpc"],

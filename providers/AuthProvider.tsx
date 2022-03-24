@@ -32,22 +32,18 @@ const AuthProvider: React.FC<AuthProviderProps> = ({
   }, [accessToken, expireThreshold]);
 
   const authenticate = useCallback(async () => {
-    try {
-      const {
-        data: { nonceToken },
-      } = await genNonceToken(address!);
-      const { nonce } = jwtDecode(nonceToken) as { nonce: string };
+    const {
+      data: { nonceToken },
+    } = await genNonceToken(address!);
+    const { nonce } = jwtDecode(nonceToken) as { nonce: string };
 
-      const signature = await signMessage(nonce);
-      const {
-        data: { accessToken },
-      } = await verifySignature(signature, nonceToken);
+    const signature = await signMessage(nonce);
+    const {
+      data: { accessToken },
+    } = await verifySignature(signature, nonceToken);
 
-      sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-      setAccessToken(accessToken);
-    } catch (err) {
-      console.error(err);
-    }
+    sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    setAccessToken(accessToken);
   }, [address]);
 
   useEffect(() => {
@@ -71,7 +67,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({
           setAccessToken(null);
         },
         // Invalidate token before expire
-        exp - expireThreshold - Date.now() / 1000
+        (exp - expireThreshold - Date.now() / 1000) * 1000
       );
 
       return () => {
