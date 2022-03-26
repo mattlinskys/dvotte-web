@@ -1,6 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
+import { IMultiResults } from "types/api";
 import type {
   ICreateProjectDto,
+  IDevote,
+  IDevoteDto,
   IProject,
   IUpdateProjectDto,
 } from "types/project";
@@ -23,3 +26,11 @@ export const getProjectBySlug = (
   slug: string,
   config?: AxiosRequestConfig<any>
 ) => axios.get<IProject>(`/projects/${slug}/slug`, config);
+
+export const registerDevote = (id: string, data: IDevoteDto) =>
+  axios.post<IDevote>(`/projects/${id}/devotes`, data);
+
+export const getProjectDevotes = (id: string, offset: number, limit: number) =>
+  axios.get<IMultiResults<IDevote>>(`/projects/${id}/devotes`, {
+    params: { offset, limit },
+  });

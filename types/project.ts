@@ -27,9 +27,25 @@ export interface ICreateProjectDto
 
 export interface IUpdateProjectDto extends Omit<ICreateProjectDto, "slug"> {}
 
+export interface IDevoteDto {
+  chainId: number;
+  transactionHash: string;
+  note: string;
+}
+
 export enum SocialType {
-  Discord = "discord",
   Twitter = "twitter",
   Telegram = "telegram",
+  Discord = "discord",
   Medium = "medium",
+}
+
+export interface IDevote {
+  id: string;
+  transactionHash: string;
+  contract: IContract;
+  from: string;
+  value: string;
+  content: string;
+  createdAt: string;
 }

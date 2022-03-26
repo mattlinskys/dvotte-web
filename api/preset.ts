@@ -7,7 +7,7 @@ export const presetApi = () => {
   if (typeof window !== "undefined") {
     axios.interceptors.request.use((config) => {
       if (!config.url!.startsWith("/auth")) {
-        const accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+        const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
         if (accessToken) {
           config.headers!["Authorization"] = `Bearer ${accessToken}`;
         }

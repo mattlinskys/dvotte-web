@@ -58,7 +58,7 @@ const ContractForm: React.FC<ContractFormProps> = ({ onSubmit }) => {
   });
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <VStack align="stretch" spacing="3">
         <FormControl>
           <FormLabel htmlFor="address">Address</FormLabel>

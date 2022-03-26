@@ -42,12 +42,12 @@ const AuthProvider: React.FC<AuthProviderProps> = ({
       data: { accessToken },
     } = await verifySignature(signature, nonceToken);
 
-    sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     setAccessToken(accessToken);
   }, [address]);
 
   useEffect(() => {
-    const accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessToken) {
       setAccessToken(accessToken);
     }

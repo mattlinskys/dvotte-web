@@ -4,7 +4,7 @@ import { makeGetServerSideTranslationsProps } from "utils/ssrUtils";
 import PageLayout from "components/PageLayout";
 import Panel from "components/Panel";
 import { Heading, useToast } from "@chakra-ui/react";
-import CreateProjectForm from "components/CreateProjectForm";
+import ProjectForm from "components/ProjectForm";
 import { useTranslation } from "next-i18next";
 import ConnectWalletDialogProvider from "providers/ConnectWalletDialogProvider";
 import AuthenticateDialogProvider from "providers/AuthenticateDialogProvider";
@@ -39,7 +39,7 @@ const NewProjectPage: NextPage = () => {
           <Heading size="md" mb="4">
             {t("projects:new-project")}
           </Heading>
-          <CreateProjectForm onSaved={handleSaved} />
+          <ProjectForm onSaved={handleSaved} />
         </Panel>
       </PageLayout>
 

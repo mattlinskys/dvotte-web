@@ -28,7 +28,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       </Head>
 
       <Box
-        h="full"
+        minH="100vh"
         display="flex"
         flexDirection="column"
         justifyContent="stretch"

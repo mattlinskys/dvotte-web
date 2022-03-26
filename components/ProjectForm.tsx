@@ -5,10 +5,10 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import useSigner from "hooks/useSigner";
 import {
   AspectRatio,
   Button,
+  Center,
   CloseButton,
   FormControl,
   FormHelperText,
@@ -19,6 +19,10 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Select,
   Textarea,
   useToast,
@@ -31,13 +35,11 @@ import * as yup from "yup";
 import slugify from "slugify";
 import FileInput from "components/FileInput";
 import useChains from "hooks/useChains";
-import type { IProject, SocialType } from "types/project";
+import { IProject, SocialType } from "types/project";
 import dynamic from "next/dynamic";
 import { AuthContext } from "contexts/AuthContext";
 import { utils } from "ethers";
 import { isAddressZero } from "utils/addressUtils";
-
-import "react-quill/dist/quill.snow.css";
 import { IContract } from "types/contract";
 import {
   createProject,
@@ -45,6 +47,9 @@ import {
   uploadProjectBanner,
 } from "api/projectsApi";
 import { AxiosError } from "axios";
+import { socialTypeToIcon } from "config/socials";
+
+import "react-quill/dist/quill.snow.css";
 
 const ContentEditorModal = dynamic(
   () => import("components/ContentEditorModal"),
@@ -53,7 +58,7 @@ const ContentEditorModal = dynamic(
   }
 );
 
-interface CreateProjectFormProps {
+interface ProjectFormProps {
   project?: IProject;
   onSaved: (project: IProject) => void;
 }
@@ -71,15 +76,12 @@ interface FormValues {
 
 // TODO: Translations
 // TODO: Use error.content.type from schema (do not inject messages)
-const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
-  project,
-  onSaved,
-}) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSaved }) => {
   const toast = useToast();
-  const signer = useSigner();
   const { isAuthenticated } = useContext(AuthContext);
   const chains = useChains();
   const [isEditorOpen, setEditorOpen] = useState(false);
+  // TODO: Socials validation
   const schema = useMemo(
     () =>
       yup
@@ -134,6 +136,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
     setValue,
     setError,
     getFieldState,
+    reset,
     watch,
   } = useForm<FormValues>({
     defaultValues: {
@@ -143,7 +146,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
       content: project?.content ?? "",
       color: project?.color ?? "#3182ce",
       contracts: project?.contracts ?? [{ address: "" }],
-      socials: [],
+      socials: project?.socials ?? [{ type: SocialType.Twitter, url: "" }],
     },
     resolver: yupResolver(schema),
     mode: "onBlur",
@@ -154,6 +157,14 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
     remove: removeContract,
   } = useFieldArray({
     name: "contracts",
+    control,
+  });
+  const {
+    fields: socialsFields,
+    append: appendSocial,
+    remove: removeSocial,
+  } = useFieldArray({
+    name: "socials",
     control,
   });
   const content = watch("content");
@@ -193,6 +204,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
         }
 
         onSaved(savedProject);
+        reset(savedProject);
       } catch (err: any) {
         if ((err as AxiosError).response?.status === 409) {
           setError("slug", { type: "taken" }, { shouldFocus: true });
@@ -206,7 +218,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
         }
       }
     },
-    [project?.id, toast, onSaved]
+    [project?.id, toast, reset, onSaved]
   );
 
   return (
@@ -238,7 +250,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
                 overflow="hidden"
                 borderWidth="1px"
                 borderStyle="solid"
-                borderColor="gray.600"
+                borderColor="gray.300"
               >
                 <Image src={bannerUrl} objectFit="cover" />
               </AspectRatio>
@@ -258,6 +270,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
             <FileInput<FormValues>
               id="banner"
               type="file"
+              accept="image/png, image/jpeg"
               display="none"
               name="bannerFile"
               control={control}
@@ -293,8 +306,61 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
           </FormControl>
 
           <FormControl>
-            <FormLabel>Contracts</FormLabel>
+            <FormLabel>Socials</FormLabel>
+            <VStack as="ul" align="stretch" spacing="2">
+              {socialsFields.map((field, i) => (
+                <HStack key={field.id} as="li" spacing="2">
+                  <Center
+                    w="9"
+                    h="9"
+                    rounded="full"
+                    flexShrink="0"
+                    color={`${field.type}.500`}
+                    borderWidth="2px"
+                    borderStyle="solid"
+                    borderColor="currentColor"
+                  >
+                    <Icon as={socialTypeToIcon[field.type]} w="6" h="auto" />
+                  </Center>
+                  <FormControl>
+                    <Input
+                      placeholder="Url"
+                      {...register(`socials.${i}.url` as const)}
+                    />
+                  </FormControl>
+                  <CloseButton onClick={() => removeSocial(i)} />
+                </HStack>
+              ))}
 
+              {socialsFields.length < Object.values(SocialType).length && (
+                <HStack justify="flex-end">
+                  <Menu>
+                    <MenuButton as={Button} variant="ghost">
+                      + Add
+                    </MenuButton>
+                    <MenuList>
+                      {Object.values(SocialType)
+                        .filter(
+                          (type) =>
+                            !socialsFields.some((field) => field.type === type)
+                        )
+                        .map((type) => (
+                          <MenuItem
+                            key={type}
+                            onClick={() => appendSocial({ type, url: "" })}
+                          >
+                            {type}
+                          </MenuItem>
+                        ))}
+                    </MenuList>
+                  </Menu>
+                </HStack>
+              )}
+            </VStack>
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Contracts</FormLabel>
             <VStack as="ul" align="stretch" spacing="2">
               {contractsFields.map((field, i) => (
                 <HStack key={field.id} as="li" spacing="2">
@@ -350,7 +416,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
           mt="4"
           isFullWidth
         >
-          Create
+          {project ? "Save" : "Create"}
         </Button>
       </form>
 
@@ -367,4 +433,4 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({
   );
 };
 
-export default CreateProjectForm;
+export default ProjectForm;
