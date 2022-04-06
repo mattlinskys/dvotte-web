@@ -4,13 +4,20 @@ import { providers } from "ethers";
 import { appWithTranslation } from "next-i18next";
 import { theme } from "config/theme";
 import { presetApi } from "api/preset";
-
 import { Web3ReactProvider } from "@web3-react/core";
 import { ChakraProvider } from "@chakra-ui/react";
 import ChainsProvider from "providers/ChainsProvider";
 import AuthProvider from "providers/AuthProvider";
 import AutoConnectProvider from "providers/AutoConnectProvider";
 import RecentlyViewiedContractsProvider from "providers/RecentlyViewiedContractsProvider";
+
+import "@fontsource/inter/300.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/inter/800.css";
+import "@fontsource/inter/900.css";
 
 presetApi();
 

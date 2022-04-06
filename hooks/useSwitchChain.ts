@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import useLibrary from "hooks/useLibrary";
 import useConnector from "hooks/useConnector";
-import { InjectedConnector } from "@web3-react/injected-connector";
 import type { IChain } from "types/chain";
 
 const useSwitchChain = () => {
@@ -20,7 +19,10 @@ const useSwitchChain = () => {
           ],
         });
       } catch (err: any) {
-        if (err.code === 4902 && connector instanceof InjectedConnector) {
+        if (
+          err.code === 4902 ||
+          (typeof err === "string" && err.includes("wallet_addEthereumChain"))
+        ) {
           await library?.provider?.request?.({
             method: "wallet_addEthereumChain",
             params: [

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { NextPage } from "next";
 import { makeGetServerSideProjectProps } from "utils/ssrUtils";
 import type { IProject } from "types/project";
@@ -22,7 +23,6 @@ import {
   UnorderedList,
   VStack,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
 import { PROJECT_WRAPPER_ID } from "constants/dom";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/router";

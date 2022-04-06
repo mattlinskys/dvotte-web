@@ -1,40 +1,22 @@
-import React, { useCallback } from "react";
-import {
-  Button,
-  Icon,
-  StackProps,
-  Text,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
+import React from "react";
+import { Button, Icon, StackProps, VStack } from "@chakra-ui/react";
 import useChains from "hooks/useChains";
-import useSwitchChain from "hooks/useSwitchChain";
 import { IChain } from "types/chain";
-import useActiveChain from "hooks/useActiveChain";
 import { CheckIcon } from "@chakra-ui/icons";
 
-const SelectChainList: React.FC<StackProps> = (props) => {
-  const chains = useChains();
-  const activeChain = useActiveChain();
-  const switchChain = useSwitchChain();
-  const toast = useToast();
+export interface SelectChainListProps extends StackProps {
+  onSelectChain: (chain: IChain) => void;
+  selectedChainId?: IChain["id"];
+  loadingChainId?: IChain["id"];
+}
 
-  const handleChainSwitch = useCallback(
-    async (chain: IChain) => {
-      try {
-        await switchChain(chain);
-      } catch (err: any) {
-        console.error(err);
-        toast({
-          title: err.message,
-          status: "error",
-          isClosable: true,
-          duration: 10_000,
-        });
-      }
-    },
-    [switchChain]
-  );
+const SelectChainList: React.FC<SelectChainListProps> = ({
+  onSelectChain,
+  selectedChainId,
+  loadingChainId,
+  ...rest
+}) => {
+  const chains = useChains();
 
   return (
     <VStack
@@ -44,18 +26,19 @@ const SelectChainList: React.FC<StackProps> = (props) => {
       m="-2"
       maxHeight="72"
       overflowY="auto"
-      {...props}
+      {...rest}
     >
       {chains.map((chain) => {
-        const isSelected = activeChain && activeChain.id === chain.id;
+        const isSelected = chain.id === selectedChainId;
 
         return (
           <Button
             key={chain.id}
-            onClick={() => handleChainSwitch(chain)}
+            onClick={() => onSelectChain(chain)}
             variant="outline"
             flexShrink="0"
             isDisabled={isSelected}
+            isLoading={chain.id === loadingChainId}
             leftIcon={isSelected ? <Icon as={CheckIcon} /> : undefined}
           >
             {chain.name}

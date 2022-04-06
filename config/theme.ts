@@ -1,4 +1,3 @@
-import { generate } from "@ant-design/colors";
 import {
   extendTheme,
   withDefaultColorScheme,
@@ -12,8 +11,8 @@ export const theme = extendTheme(
       // initialColorMode: "dark",
     },
     fonts: {
-      heading: "Lato",
-      body: "Lato",
+      heading: "Inter",
+      body: "Inter",
     },
     styles: {
       global: {
@@ -82,6 +81,8 @@ export const theme = extendTheme(
         500: "#000",
         600: "#000",
       },
+      metamask: generatePalette("#F6851B"),
+      walletConnect: generatePalette("#3B99FC"),
     },
     components: {
       Container: {
@@ -119,7 +120,7 @@ export const theme = extendTheme(
           borderStyle: "solid",
           bg: "white",
           borderColor: colorMode === "dark" ? "gray.600" : "gray.300",
-          rounded: "md",
+          rounded: "xl",
         }),
       },
       Input: {
@@ -172,6 +173,22 @@ export const theme = extendTheme(
               margin: "4",
             },
           },
+        },
+      },
+      Menu: {
+        baseStyle: {
+          list: {
+            borderRadius: "xl",
+            boxShadow: "lg",
+          },
+        },
+      },
+      FormLabel: {
+        baseStyle: {
+          lineHeight: "1.375",
+          fontWeight: "normal",
+          fontSize: "sm",
+          mb: "1.5",
         },
       },
     } as Record<string, ComponentSingleStyleConfig>,

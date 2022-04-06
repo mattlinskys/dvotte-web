@@ -181,9 +181,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSaved }) => {
       if (
         name === "title" &&
         type === "change" &&
-        (!getFieldState("slug").isTouched || slugify(title!).startsWith(slug!))
+        (!getFieldState("slug").isTouched ||
+          slugify(title!.toLowerCase()).startsWith(slug!.toLowerCase()))
       ) {
-        setValue("slug", slugify(title!));
+        setValue("slug", slugify(title!).toLowerCase());
       }
     });
     return unsubscribe;

@@ -1,4 +1,12 @@
 {
   "save": "Save",
-  "select-chain": "Select chain"
+  "select-chain": "Select chain",
+  "copied": "Copied to clipboard!",
+  "connect-metamask": "Connect with MetaMask",
+  "connect-walletConnect": "Connect with WalletConnect",
+  "connected-metamask": "Connected with MetaMask",
+  "connected-walletConnect": "Connected with WalletConnect",
+  "projects": "Projects",
+  "contracts": "Contracts",
+  "disconnect": "Disconnect"
 }

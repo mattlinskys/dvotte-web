@@ -1,14 +1,15 @@
 import React, { useCallback, useState } from "react";
 import { injected, walletConnect } from "connectors";
 import { useWeb3React } from "@web3-react/core";
-import { Button, VStack } from "@chakra-ui/react";
-import { InjectedConnector } from "@web3-react/injected-connector";
+import { Button, Icon, VStack } from "@chakra-ui/react";
 import { AbstractConnector } from "@web3-react/abstract-connector";
-import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { getConnectorIcon, getConnectorKey } from "config/connectors";
+import { useTranslation } from "next-i18next";
 
 const connectors = [injected, walletConnect];
 
 const ConnectWallet: React.FC = () => {
+  const { t } = useTranslation();
   const { activate } = useWeb3React();
   const [connectingConnector, setConnectingConnector] =
     useState<AbstractConnector | null>(null);
@@ -24,20 +25,23 @@ const ConnectWallet: React.FC = () => {
 
   return (
     <VStack align="stretch">
-      {connectors.map((connector, i) => (
-        <Button
-          key={i}
-          onClick={() => handleConnect(connector)}
-          isLoading={connector === connectingConnector}
-        >
-          Connect{" "}
-          {connector instanceof InjectedConnector
-            ? "MetaMask"
-            : connector instanceof WalletConnectConnector
-            ? "WalletConnect"
-            : "-"}
-        </Button>
-      ))}
+      {connectors.map((connector, i) => {
+        const connectorKey = getConnectorKey(connector);
+        const ConnectorIcon = getConnectorIcon(connector);
+
+        return (
+          <Button
+            key={i}
+            onClick={() => handleConnect(connector)}
+            isLoading={connector === connectingConnector}
+            variant="outline"
+            colorScheme={connectorKey}
+            leftIcon={<Icon as={ConnectorIcon} w="5" h="auto" />}
+          >
+            {t(`common:connect-${connectorKey}`)}
+          </Button>
+        );
+      })}
     </VStack>
   );
 };

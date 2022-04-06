@@ -8,7 +8,7 @@ const useWeb3ErrorToast = () => {
   const toast = useToast();
 
   useEffect(() => {
-    if (error) {
+    if (error && error.name !== "UserRejectedRequestError") {
       let title = error.message;
 
       if (error instanceof NoEthereumProviderError) {

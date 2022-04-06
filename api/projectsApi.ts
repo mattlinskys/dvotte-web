@@ -8,6 +8,14 @@ import type {
   IUpdateProjectDto,
 } from "types/project";
 
+export const getProjects = (config?: AxiosRequestConfig<any>) =>
+  axios.get<IProject[]>("/projects", config);
+
+export const getProjectBySlug = (
+  slug: string,
+  config?: AxiosRequestConfig<any>
+) => axios.get<IProject>(`/projects/${slug}/slug`, config);
+
 export const createProject = (
   data: ICreateProjectDto,
   config?: AxiosRequestConfig<any>
@@ -22,10 +30,8 @@ export const updateProject = (
 export const uploadProjectBanner = (id: string, data: FormData) =>
   axios.post<IProject>(`/projects/${id}/upload-banner`, data);
 
-export const getProjectBySlug = (
-  slug: string,
-  config?: AxiosRequestConfig<any>
-) => axios.get<IProject>(`/projects/${slug}/slug`, config);
+export const deleteProject = (id: string, config?: AxiosRequestConfig<any>) =>
+  axios.delete(`/projects/${id}`, config);
 
 export const registerDevote = (id: string, data: IDevoteDto) =>
   axios.post<IDevote>(`/projects/${id}/devotes`, data);

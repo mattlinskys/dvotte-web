@@ -12,6 +12,7 @@ import {
   FormLabel,
   HStack,
   Input,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -35,6 +36,7 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
 }) => {
   const signer = useSigner();
   const accountAddress = useAccountAddress();
+  const toast = useToast();
 
   const schema = useMemo(
     () =>
@@ -122,11 +124,18 @@ const DeployContractForm: React.FC<DeployContractFormProps> = ({
         await contract.deployTransaction.wait();
 
         onDeployed(contract);
-      } catch (err) {
-        // TODO:
+      } catch (err: any) {
+        if (err.code !== 4001) {
+          toast({
+            title: err.message,
+            status: "error",
+            isClosable: true,
+            duration: 10_000,
+          });
+        }
       }
     },
-    [signer, onDeployed]
+    [signer, onDeployed, toast]
   );
 
   return (

@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import useActiveChain from "hooks/useActiveChain";
 import Dialog from "components/Dialog";
-import SelectChainList from "components/SelectChainList";
+import SwitchChainList from "components/SwitchChainList";
 
 const SelectChainButton: React.FC<ButtonProps> = (props) => {
   const chain = useActiveChain();
@@ -32,12 +32,12 @@ const SelectChainButton: React.FC<ButtonProps> = (props) => {
             ? `${chain.name}${
                 chain.nativeCurrency ? ` (${chain.nativeCurrency.name})` : ""
               }`
-            : "-"}
+            : "Unsupported chain"}
         </Box>
       </Button>
 
       <Dialog title="Select chain" isOpen={isOpen} onClose={onClose}>
-        <SelectChainList />
+        <SwitchChainList />
       </Dialog>
     </>
   );
